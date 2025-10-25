@@ -1,0 +1,35 @@
+# Environment variables
+.env
+
+# Virtual environment
+venv/
+env/
+ENV/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Database backups
+*.sql.backup
+*.db
+
+# Scraped data
+product_urls.json
+PAGE_CACHE/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log

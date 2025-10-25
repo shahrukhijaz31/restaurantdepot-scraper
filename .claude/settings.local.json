@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -m py_compile:*)",
+      "Bash(timeout 120 python test_headed_nav.py)",
+      "Bash(timeout 180 python test_detailed.py)",
+      "Bash(timeout 240 python test_full_flow.py)",
+      "Bash(timeout 120 python debug_test.py)",
+      "Bash(timeout 180 python test_final.py)",
+      "Bash(timeout 180 python verify_flow.py)",
+      "Bash(timeout 120 python test_sync_products.py)",
+      "Bash(timeout 120 python test_field_extractions.py)",
+      "Read(//c/Users/lukya/Desktop/lafoodservice_web/restDepot/restDepot/**)",
+      "Bash(rm:*)",
+      "Bash(git add:*)",
+      "Bash(git rm:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
