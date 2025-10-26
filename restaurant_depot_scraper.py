@@ -429,6 +429,51 @@ class RestaurantDepotScraper:
             print(f"Error connecting to MySQL: {e}")
             self.conn, self.cursor = None, None
 
+    def populate_categories_table(self):
+        """Populate categories table with name and URL from category_url_map."""
+        if not self.conn or not self.cursor:
+            print("Warning: Database connection not available. Skipping categories population.")
+            return
+
+        print("Populating categories table...")
+        base_url = "https://member.restaurantdepot.com"
+        added_count = 0
+        updated_count = 0
+        skipped_count = 0
+
+        for url_path, category_name in self.category_url_map.items():
+            try:
+                full_url = base_url + url_path
+
+                # Check if category already exists by URL
+                check_sql = "SELECT id, name FROM categories WHERE url = %s"
+                self.cursor.execute(check_sql, (full_url,))
+                existing = self.cursor.fetchone()
+
+                if not existing:
+                    # Insert new category
+                    insert_sql = "INSERT INTO categories (name, url) VALUES (%s, %s)"
+                    self.cursor.execute(insert_sql, (category_name, full_url))
+                    added_count += 1
+                elif existing['name'] != category_name:
+                    # Update category name if it has changed
+                    update_sql = "UPDATE categories SET name = %s WHERE url = %s"
+                    self.cursor.execute(update_sql, (category_name, full_url))
+                    updated_count += 1
+                else:
+                    skipped_count += 1
+
+            except Exception as e:
+                print(f"  Error processing category '{category_name}': {e}")
+                continue
+
+        try:
+            self.conn.commit()
+            print(f"  Categories: Added {added_count}, Updated {updated_count}, Skipped {skipped_count}")
+        except Exception as e:
+            print(f"  Error committing categories: {e}")
+            self.conn.rollback()
+
     def check_session_expired(self, page):
         """Check if the session has expired on a given page."""
         try:
@@ -597,6 +642,7 @@ class RestaurantDepotScraper:
             "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "products": [{"url": url, "category": self.product_url_to_category.get(url, "Unknown")} for url in unique_urls]
         }
+        import json
         try:
             with open(product_urls_file, "w", encoding="utf-8") as f:
                 json.dump(product_data, f, ensure_ascii=False, indent=2)
@@ -635,6 +681,7 @@ class RestaurantDepotScraper:
 
             self.initialize_browser()
             self.initialize_database()
+            self.populate_categories_table()
             self.collect_product_urls()
 
             print("\n" + "=" * 70)
